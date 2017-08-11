@@ -1,2 +1,19 @@
 ---
 # tasks file for install-nodejs
+
+- getent:
+    database: passwd
+    key: "{{ user_to_install }}"
+    split: ":"
+
+- set_fact:
+    user_to_install_home: "{{ getent_passwd[user_to_install][4] }}"  
+
+- debug:
+    msg: "home: {{ user_to_install_home }}"
+
+# - name: downloading {{ url_path }}/{{ file_name }}.tar.xz with checksum check
+#   get_url:
+#     url: "{{ url_path }}/{{ file_name }}.tar.xz"
+#     dest: "/tmp/{{ file_name }}.tar.xz"
+#     checksum: "{{ file_checksum }}"
