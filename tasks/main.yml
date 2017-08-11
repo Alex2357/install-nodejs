@@ -24,3 +24,11 @@
     url: "{{ url_path }}/{{ file_name }}.tar.xz"
     dest: "/tmp/{{ file_name }}.tar.xz"
     checksum: "{{ file_checksum }}"
+
+# - name: Extract node.tar.xz into 
+#   unarchive:
+#     src: "/tmp/{{ file_name }}.tar.xz"
+#     dest: '/tmp/ans'
+#   become: yes
+#     #dest: "{{ user_to_install_home }}/.local/install/node"
+
