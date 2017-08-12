@@ -19,16 +19,26 @@
     owner:  "{{ user_to_install }}"
   become: yes  
 
-- name: downloading {{ url_path }}/{{ file_name }}.tar.xz with checksum check
-  get_url:
-    url: "{{ url_path }}/{{ file_name }}.tar.xz"
-    dest: "/tmp/{{ file_name }}.tar.xz"
-    checksum: "{{ file_checksum }}"
+# - name: downloading {{ url_path }}/{{ file_name }}.tar.xz with checksum check
+#   get_url:
+#     url: "{{ url_path }}/{{ file_name }}.tar.xz"
+#     dest: "{{ user_to_install_home }}/{{ file_name }}.tar.xz"
+#     checksum: "{{ file_checksum }}"
+#   become: yes #required to downloads into users downloads folder as we don't have permissions.
 
 # - name: Extract node.tar.xz into 
 #   unarchive:
-#     src: "/tmp/{{ file_name }}.tar.xz"
-#     dest: '/tmp/ans'
+#     src: "{{ user_to_install_home }}/{{ file_name }}.tar.xz"
+#     dest: '{{ user_to_install_home }}/ans'
+#     #remote_src: false
 #   become: yes
-#     #dest: "{{ user_to_install_home }}/.local/install/node"
+# #     #dest: "{{ user_to_install_home }}/.local/install/node"
 
+- name: Extract node archive
+  shell: |
+    tar xf {{ user_to_install_home }}/{{ file_name }}.tar.xz -C {{ user_to_install_home }}/.local/install/node
+    touch {{ user_to_install_home }}/.local/install/node/{{ file_name }}/nodejsextracted.txt # I could not do this step but I really like idea that in a shell you can do some stuff in multi steps and create a file meaning it is done. I agree unarchive would be better as files of node js potentally could be changed or deleted. But it is very unlikely and I'm ready to accept the risk 
+  args:
+    creates: "{{ user_to_install_home }}/.local/install/node/{{ file_name }}/nodejsextracted.txt"
+  become: yes
+    
