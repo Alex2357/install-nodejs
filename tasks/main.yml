@@ -34,11 +34,27 @@
 #   become: yes
 # #     #dest: "{{ user_to_install_home }}/.local/install/node"
 
+# I could not do touch step but I really like idea that in a shell you can do some stuff in multi steps and create a file meaning it is done. unarchive would be better as files of node js potentally could be changed or deleted. But it is very unlikely and ready to accept that minor risk  
 - name: Extract node archive
   shell: |
     tar xf {{ user_to_install_home }}/{{ file_name }}.tar.xz -C {{ user_to_install_home }}/.local/install/node
-    touch {{ user_to_install_home }}/.local/install/node/{{ file_name }}/nodejsextracted.txt # I could not do this step but I really like idea that in a shell you can do some stuff in multi steps and create a file meaning it is done. I agree unarchive would be better as files of node js potentally could be changed or deleted. But it is very unlikely and I'm ready to accept the risk 
+    touch {{ user_to_install_home }}/.local/install/node/{{ file_name }}/nodejsextracted.txt 
   args:
     creates: "{{ user_to_install_home }}/.local/install/node/{{ file_name }}/nodejsextracted.txt"
   become: yes
-    
+
+- name: add export NODE_PATH in .bashrc
+  lineinfile: 
+    dest: "{{ user_to_install_home }}/.bashrc"
+    regexp: "^export NODE_PATH"
+    line: "export NODE_PATH={{ user_to_install_home }}/.local/install/node/{{ file_name }}/bin"
+    state: present
+  become: yes    
+
+- name: add NODE_PATH to PATH in .bashrc
+  lineinfile: #good example. regex & escaping $ character
+    dest: "{{ user_to_install_home }}/.bashrc"
+    regexp: "^export PATH=[$]NODE_PATH"
+    line: "export PATH=$NODE_PATH:$PATH"
+    state: present
+  become: yes    
