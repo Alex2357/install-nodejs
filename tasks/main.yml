@@ -16,7 +16,9 @@
   file: 
     path: "{{ user_to_install_home }}/.local/install/node" 
     state: directory
+    recurse: yes
     owner:  "{{ user_to_install }}"
+    group:  "{{ user_to_install }}"
   become: yes  
 
 - name: downloading {{ url_path }}/{{ file_name }}.tar.xz with checksum check
