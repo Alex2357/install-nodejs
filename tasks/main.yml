@@ -45,6 +45,11 @@
     creates: "{{ user_to_install_home }}/.local/install/node/{{ file_name }}/nodejsextracted.txt"
   become: yes
 
+- name: make sure .bashrc exists
+  file:
+    path: "{{ user_to_install_home }}/.bashrc"
+    state: touch  
+
 - name: add export NODE_PATH in .bashrc
   lineinfile: 
     dest: "{{ user_to_install_home }}/.bashrc"
