@@ -1,2 +1,6 @@
 ---
 # defaults file for install-nodejs
+
+url_path: 'https://nodejs.org/dist/v6.10.3'
+file_name: 'node-v6.10.3-linux-x64'
+file_checksum: 'sha256:00d0aea8e47a68da6e3278d7c2fc1504de46a34d97b4b2fa5610b04a64fce04c'
