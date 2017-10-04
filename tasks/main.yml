@@ -49,6 +49,7 @@
   file:
     path: "{{ user_to_install_home }}/.bashrc"
     state: touch  
+  become: yes
 
 - name: add export NODE_PATH in .bashrc
   lineinfile: 
