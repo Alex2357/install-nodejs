@@ -7,14 +7,18 @@
     split: ":"
 
 - set_fact:
-    user_to_install_home: "{{ getent_passwd[user_to_install][4] }}"  
+    user_to_install_home: "{{ getent_passwd[user_to_install][4] }}" 
+- set_fact:
+    profile_path: "{{ user_to_install_home }}/.bashrc"  # wanted replace .bashrc with .profile as when you're ssh to box exported variable are not working, but solution here https://stackoverflow.com/a/820533/8505938
+    node_install: "{{ user_to_install_home }}/.local/install/node"
+
 
 - debug:
     msg: "home: {{ user_to_install_home }}"
 
 - name: Creates directory
   file: 
-    path: "{{ user_to_install_home }}/.local/install/node" 
+    path: "{{ node_install }}" 
     state: directory
     recurse: yes
     owner:  "{{ user_to_install }}"
@@ -34,35 +38,40 @@
 #     dest: '{{ user_to_install_home }}/ans'
 #     #remote_src: false
 #   become: yes
-# #     #dest: "{{ user_to_install_home }}/.local/install/node"
+# #     #dest: "{{ node_install }}"
 
 # I could not do touch step but I really like idea that in a shell you can do some stuff in multi steps and create a file meaning it is done. unarchive would be better as files of node js potentally could be changed or deleted. But it is very unlikely and ready to accept that minor risk  
 - name: Extract node archive
   shell: |
-    tar xf {{ user_to_install_home }}/{{ file_name }}.tar.xz -C {{ user_to_install_home }}/.local/install/node
-    touch {{ user_to_install_home }}/.local/install/node/{{ file_name }}/nodejsextracted.txt 
+    tar xf {{ user_to_install_home }}/{{ file_name }}.tar.xz -C {{ node_install }}
+    touch {{ node_install }}/{{ file_name }}/nodejsextracted.txt 
   args:
-    creates: "{{ user_to_install_home }}/.local/install/node/{{ file_name }}/nodejsextracted.txt"
+    creates: "{{ node_install }}/{{ file_name }}/nodejsextracted.txt"
   become: yes
 
-- name: make sure .bashrc exists
+- name: make sure .profile exists
   file:
-    path: "{{ user_to_install_home }}/.bashrc"
+    path: "{{ profile_path }}"
     state: touch  
   become: yes
 
-- name: add export NODE_PATH in .bashrc
+- name: add export NODE_PATH in {{ profile_path }}
   lineinfile: 
-    dest: "{{ user_to_install_home }}/.bashrc"
+    dest: "{{ profile_path }}"
     regexp: "^export NODE_PATH"
-    line: "export NODE_PATH={{ user_to_install_home }}/.local/install/node/{{ file_name }}/bin"
+    line: "export NODE_PATH={{ node_install }}/{{ file_name }}/bin"
     state: present
   become: yes    
 
-- name: add NODE_PATH to PATH in .bashrc
+- name: add NODE_PATH to PATH in {{ profile_path }}
   lineinfile: #good example. regex & escaping $ character
-    dest: "{{ user_to_install_home }}/.bashrc"
+    dest: "{{ profile_path }}"
     regexp: "^export PATH=[$]NODE_PATH"
     line: "export PATH=$NODE_PATH:$PATH"
     state: present
-  become: yes    
+  become: yes   
+
+#this needed as without gathering facts again the changes which done above won't work.
+#no restart required.
+- name: Run setup to reevaluate values ansible_env.NODE_PATH
+  setup:    
