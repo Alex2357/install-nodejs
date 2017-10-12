@@ -9,9 +9,12 @@
 - set_fact:
     user_to_install_home: "{{ getent_passwd[user_to_install][4] }}" 
 - set_fact:
-    profile_path: "{{ user_to_install_home }}/.bashrc"  # wanted replace .bashrc with .profile as when you're ssh to box exported variable are not working, but solution here https://stackoverflow.com/a/820533/8505938
     node_install: "{{ user_to_install_home }}/.local/install/node"
 
+- name: Print profile_files
+  debug:
+    msg: "Profile file {{ item }}"
+  with_items: "{{ profile_files }}"
 
 - debug:
     msg: "home: {{ user_to_install_home }}"
@@ -49,27 +52,30 @@
     creates: "{{ node_install }}/{{ file_name }}/nodejsextracted.txt"
   become: yes
 
-- name: make sure .profile exists
+- name: make sure profile {{ item }} exists
   file:
-    path: "{{ profile_path }}"
+    path: "{{ item }}"
     state: touch  
   become: yes
+  with_items: "{{ profile_files }}"
 
-- name: add export NODE_PATH in {{ profile_path }}
+- name: add export NODE_PATH in {{ item }}
   lineinfile: 
-    dest: "{{ profile_path }}"
+    dest: "{{ item }}"
     regexp: "^export NODE_PATH"
     line: "export NODE_PATH={{ node_install }}/{{ file_name }}/bin"
     state: present
-  become: yes    
+  become: yes
+  with_items: "{{ profile_files }}"    
 
-- name: add NODE_PATH to PATH in {{ profile_path }}
+- name: add NODE_PATH to PATH in {{ item }}
   lineinfile: #good example. regex & escaping $ character
-    dest: "{{ profile_path }}"
+    dest: "{{ item }}"
     regexp: "^export PATH=[$]NODE_PATH"
     line: "export PATH=$NODE_PATH:$PATH"
     state: present
-  become: yes   
+  become: yes 
+  with_items: "{{ profile_files }}"  
 
 #this needed as without gathering facts again the changes which done above won't work.
 #no restart required.
