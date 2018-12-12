@@ -26,7 +26,7 @@
     recurse: yes
     owner:  "{{ user_to_install }}"
     group:  "{{ user_to_install }}"
-  become: yes  
+  become: yes 
 
 - name: downloading {{ url_path }}/{{ file_name }}.tar.xz with checksum check
   get_url:
@@ -35,21 +35,12 @@
     checksum: "{{ file_checksum }}"
   become: yes #required to downloads into users downloads folder as we don't have permissions.
 
-# - name: Extract node.tar.xz into 
-#   unarchive:
-#     src: "{{ user_to_install_home }}/{{ file_name }}.tar.xz"
-#     dest: '{{ user_to_install_home }}/ans'
-#     #remote_src: false
-#   become: yes
-# #     #dest: "{{ node_install }}"
-
-# I could not do touch step but I really like idea that in a shell you can do some stuff in multi steps and create a file meaning it is done. unarchive would be better as files of node js potentally could be changed or deleted. But it is very unlikely and ready to accept that minor risk  
-- name: Extract node archive
-  shell: |
-    tar xf {{ user_to_install_home }}/{{ file_name }}.tar.xz -C {{ node_install }}
-    touch {{ node_install }}/{{ file_name }}/nodejsextracted.txt 
-  args:
-    creates: "{{ node_install }}/{{ file_name }}/nodejsextracted.txt"
+- name: Extract node.tar.xz into 
+  unarchive:
+    src: "{{ user_to_install_home }}/{{ file_name }}.tar.xz"
+    dest: "{{ node_install }}"
+    owner:  "{{ user_to_install }}"
+    group:  "{{ user_to_install }}"    
   become: yes
 
 - name: make sure profile {{ item }} exists
