@@ -46,8 +46,10 @@
 - name: make sure profile {{ item }} exists
   file:
     path: "{{ item }}"
-    state: touch  
-  become: yes
+    state: touch  # added     access_time: preserve & modification_time: preserve
+    access_time: preserve
+    modification_time: preserve
+  become: yes  
   with_items: "{{ profile_files }}"
 
 - name: add export NODE_PATH in {{ item }}
