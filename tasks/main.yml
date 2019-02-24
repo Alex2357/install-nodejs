@@ -40,7 +40,8 @@
     src: "{{ user_to_install_home }}/{{ file_name }}.tar.xz"
     dest: "{{ node_install }}"
     owner:  "{{ user_to_install }}"
-    group:  "{{ user_to_install }}"    
+    group:  "{{ user_to_install }}"
+    remote_src: yes  # ToDo think about not using this as it would benefit you download once on a controller and that's it 
   become: yes
 
 - name: make sure profile {{ item }} exists
